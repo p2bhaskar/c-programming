@@ -149,7 +149,7 @@ const AdminPanel = ({ darkMode, onClose, unitsConfig, onUpdateConfig }) => {
                     {unitsConfig.units.filter(u => u.available).length} / {unitsConfig.units.length}
                   </div>
                   <div className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-                    <span className="font-semibold">Admin Password:</span> admin123 (change in code)
+                    <span className="font-semibold">Admin Password:</span>
                   </div>
                 </div>
               </div>
@@ -186,7 +186,7 @@ const AdminLogin = ({ darkMode, onLogin }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Admin password - CHANGE THIS IN PRODUCTION
-    if (password === 'admin123') {
+    if (password === 'myPassword123') {
       onLogin();
       setError('');
     } else {
