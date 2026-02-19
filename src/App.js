@@ -2,7 +2,56 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, Trophy, Sun, Moon, Home, Shield, Lock, Unlock, Eye, EyeOff, LogOut } from 'lucide-react';
 import Unit2 from './Unit2';
 
-// Admin Login Component (inline)
+// Static unit definitions (never changes) – includes the component!
+const UNIT_DEFINITIONS = [
+  {
+    id: 1,
+    title: 'Unit 1: Introduction to Programming',
+    description: 'Basics of programming, flowcharts, and algorithms',
+    topics: 8,
+    color: 'from-red-500 to-orange-500',
+    icon: '🚀',
+    component: null, // not available yet
+  },
+  {
+    id: 2,
+    title: 'Unit 2: Operators and Control Structures',
+    description: 'Arithmetic, relational, logical operators, loops, and arrays',
+    topics: 8,
+    color: 'from-blue-500 to-purple-500',
+    icon: '⚡',
+    component: Unit2,
+  },
+  {
+    id: 3,
+    title: 'Unit 3: Functions and Recursion',
+    description: 'Function declaration, call by value/reference, recursion',
+    topics: 6,
+    color: 'from-green-500 to-teal-500',
+    icon: '🔄',
+    component: null,
+  },
+  {
+    id: 4,
+    title: 'Unit 4: Pointers and Structures',
+    description: 'Pointer basics, arrays and pointers, structures and unions',
+    topics: 7,
+    color: 'from-yellow-500 to-orange-500',
+    icon: '👉',
+    component: null,
+  },
+  {
+    id: 5,
+    title: 'Unit 5: File Handling',
+    description: 'File operations, reading, writing, and file management',
+    topics: 5,
+    color: 'from-pink-500 to-rose-500',
+    icon: '📁',
+    component: null,
+  }
+];
+
+// Admin Login Component
 const AdminLogin = ({ darkMode, onLogin, onCancel }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -10,7 +59,7 @@ const AdminLogin = ({ darkMode, onLogin, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password === 'admin123') {
+    if (password === 'myPassword123') {
       onLogin();
     } else {
       setError('Invalid password!');
@@ -80,7 +129,7 @@ const AdminLogin = ({ darkMode, onLogin, onCancel }) => {
   );
 };
 
-// Admin Panel Component (inline)
+// Admin Panel Component
 const AdminPanel = ({ darkMode, onClose, units, onToggleUnit }) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -135,65 +184,26 @@ const App = () => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
 
-  const [units, setUnits] = useState([
-    {
-      id: 1,
-      title: 'Unit 1: Introduction to Programming',
-      description: 'Basics of programming, flowcharts, and algorithms',
-      topics: 8,
-      color: 'from-red-500 to-orange-500',
-      icon: '🚀',
-      available: false
-    },
-    {
-      id: 2,
-      title: 'Unit 2: Operators and Control Structures',
-      description: 'Arithmetic, relational, logical operators, loops, and arrays',
-      topics: 8,
-      color: 'from-blue-500 to-purple-500',
-      icon: '⚡',
-      available: true,
-      component: Unit2
-    },
-    {
-      id: 3,
-      title: 'Unit 3: Functions and Recursion',
-      description: 'Function declaration, call by value/reference, recursion',
-      topics: 6,
-      color: 'from-green-500 to-teal-500',
-      icon: '🔄',
-      available: false
-    },
-    {
-      id: 4,
-      title: 'Unit 4: Pointers and Structures',
-      description: 'Pointer basics, arrays and pointers, structures and unions',
-      topics: 7,
-      color: 'from-yellow-500 to-orange-500',
-      icon: '👉',
-      available: false
-    },
-    {
-      id: 5,
-      title: 'Unit 5: File Handling',
-      description: 'File operations, reading, writing, and file management',
-      topics: 5,
-      color: 'from-pink-500 to-rose-500',
-      icon: '📁',
-      available: false
-    }
-  ]);
+  // Store only availability flags (by unit id)
+  const [unitAvailability, setUnitAvailability] = useState(() => {
+    // Default: only unit 2 is available
+    const defaultAvailability = {};
+    UNIT_DEFINITIONS.forEach(u => {
+      defaultAvailability[u.id] = u.id === 2;
+    });
+    return defaultAvailability;
+  });
 
   // Load saved settings
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) setDarkMode(savedTheme === 'dark');
 
-    const savedUnits = localStorage.getItem('unitsConfig');
-    if (savedUnits) {
+    const savedAvailability = localStorage.getItem('unitAvailability');
+    if (savedAvailability) {
       try {
-        const parsed = JSON.parse(savedUnits);
-        setUnits(parsed);
+        const parsed = JSON.parse(savedAvailability);
+        setUnitAvailability(parsed);
       } catch (e) {}
     }
 
@@ -206,10 +216,23 @@ const App = () => {
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
-  // Save units config
+  // Save availability
   useEffect(() => {
-    localStorage.setItem('unitsConfig', JSON.stringify(units));
-  }, [units]);
+    localStorage.setItem('unitAvailability', JSON.stringify(unitAvailability));
+  }, [unitAvailability]);
+
+  // Derive full units array with available status
+  const units = UNIT_DEFINITIONS.map(def => ({
+    ...def,
+    available: unitAvailability[def.id] || false,
+  }));
+
+  // Add status for display
+  const unitsWithStatus = units.map(u => ({ ...u, status: u.available ? 'Available' : 'Coming Soon' }));
+
+  const availableUnits = units.filter(u => u.available).length;
+  const totalUnits = units.length;
+  const overallProgress = (availableUnits / totalUnits) * 100;
 
   const toggleTheme = () => setDarkMode(!darkMode);
 
@@ -226,19 +249,20 @@ const App = () => {
   };
 
   const handleToggleUnit = (unitId) => {
-    setUnits(units.map(u => u.id === unitId ? { ...u, available: !u.available } : u));
+    setUnitAvailability(prev => ({
+      ...prev,
+      [unitId]: !prev[unitId]
+    }));
   };
-
-  // Add status to units
-  const unitsWithStatus = units.map(u => ({ ...u, status: u.available ? 'Available' : 'Coming Soon' }));
-
-  const availableUnits = unitsWithStatus.filter(u => u.available).length;
-  const totalUnits = unitsWithStatus.length;
-  const overallProgress = (availableUnits / totalUnits) * 100;
 
   // If a unit is selected, show that unit
   if (selectedUnit) {
     const UnitComponent = selectedUnit.component;
+    // Safety check in case component is missing
+    if (!UnitComponent) {
+      return <div className="p-8 text-center">Unit content not available</div>;
+    }
+
     return (
       <div className={`min-h-screen transition-colors duration-300 ${
         darkMode ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900' : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
