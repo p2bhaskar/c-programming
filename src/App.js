@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Trophy, Sun, Moon, Home, Shield, Lock, Unlock, Eye, EyeOff, LogOut } from 'lucide-react';
 import Unit2 from './Unit2';
