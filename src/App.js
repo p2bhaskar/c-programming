@@ -1575,12 +1575,204 @@
 // export default App;
 
 
-//Modification With Admin Panel Functionality
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Trophy, Sun, Moon, Home, Shield } from 'lucide-react';
+import { BookOpen, Trophy, Sun, Moon, Home, Shield, Lock, Unlock, Eye, EyeOff, LogOut } from 'lucide-react';
 import Unit2 from './Unit2';
-import { AdminPanel, AdminLogin } from './AdminPanel';
 
+// Admin Login Component
+const AdminLogin = ({ darkMode, onLogin, onCancel }) => {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (password === 'admin123') {
+      onLogin();
+      setError('');
+    } else {
+      setError('Invalid password!');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className={`max-w-md w-full rounded-xl shadow-2xl overflow-hidden ${
+        darkMode ? 'bg-gray-900' : 'bg-white'
+      }`}>
+        <div className="bg-gradient-to-r from-red-600 to-orange-600 p-6 text-white">
+          <div className="flex items-center gap-3 mb-2">
+            <Shield className="w-8 h-8" />
+            <h2 className="text-2xl font-bold">Admin Login</h2>
+          </div>
+          <p className="text-sm opacity-90">Enter password to access control panel</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className={`block text-sm font-semibold mb-2 ${
+              darkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border-2 ${
+                  error
+                    ? 'border-red-500 focus:border-red-600'
+                    : darkMode
+                      ? 'bg-gray-800 border-gray-700 text-white focus:border-orange-500'
+                      : 'bg-white border-gray-300 text-gray-900 focus:border-orange-500'
+                } outline-none transition-colors`}
+                placeholder="Enter admin password"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${
+                  darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                darkMode
+                  ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                  : 'bg-gray-300 hover:bg-gray-400 text-gray-900'
+              }`}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold py-3 rounded-lg transition-all"
+            >
+              Login
+            </button>
+          </div>
+
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-blue-900/20 border border-blue-700/30' : 'bg-blue-50 border border-blue-200'
+          }`}>
+            <p className={`text-sm ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+              <strong>Default Password:</strong> admin123
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Admin Panel Component
+const AdminPanel = ({ darkMode, onClose, unitsConfig, onUpdateConfig }) => {
+  const handleToggleUnit = (unitId) => {
+    const newConfig = {
+      ...unitsConfig,
+      units: unitsConfig.units.map(u => 
+        u.id === unitId ? { ...u, available: !u.available } : u
+      )
+    };
+    onUpdateConfig(newConfig);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className={`max-w-4xl w-full max-h-[90vh] overflow-hidden rounded-xl shadow-2xl ${
+        darkMode ? 'bg-gray-900' : 'bg-white'
+      }`}>
+        <div className="bg-gradient-to-r from-red-600 to-orange-600 p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Shield className="w-8 h-8" />
+              <div>
+                <h2 className="text-2xl font-bold">Admin Control Panel</h2>
+                <p className="text-sm opacity-90">Manage units visibility</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+            >
+              <LogOut className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <div className="space-y-4">
+            {unitsConfig.units.map((unit) => (
+              <div
+                key={unit.id}
+                className={`p-4 rounded-lg border ${
+                  darkMode
+                    ? 'bg-gray-800 border-gray-700'
+                    : 'bg-gray-50 border-gray-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{unit.icon}</span>
+                    <div>
+                      <h3 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Unit {unit.id}: {unit.title}
+                      </h3>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {unit.description}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggleUnit(unit.id)}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+                      unit.available
+                        ? 'bg-green-600 hover:bg-green-700 text-white'
+                        : 'bg-gray-600 hover:bg-gray-700 text-white'
+                    }`}
+                  >
+                    {unit.available ? (
+                      <>
+                        <Unlock className="w-4 h-4" />
+                        Visible
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4" />
+                        Hidden
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className={`mt-6 p-4 rounded-lg ${
+            darkMode ? 'bg-orange-900/20 border border-orange-700/30' : 'bg-orange-50 border border-orange-200'
+          }`}>
+            <p className={`text-sm ${darkMode ? 'text-orange-300' : 'text-orange-800'}`}>
+              💡 Changes are saved automatically. Students will see only the units you make visible.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main App Component
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [selectedUnit, setSelectedUnit] = useState(null);
@@ -1588,7 +1780,6 @@ const App = () => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
 
-  // Default units configuration
   const defaultUnitsConfig = {
     units: [
       {
@@ -1637,18 +1828,14 @@ const App = () => {
         icon: '📁',
         available: false
       }
-    ],
-    hiddenSlides: {}
+    ]
   };
 
   const [unitsConfig, setUnitsConfig] = useState(defaultUnitsConfig);
 
-  // Load configuration and admin status from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setDarkMode(savedTheme === 'dark');
-    }
+    if (savedTheme) setDarkMode(savedTheme === 'dark');
 
     const savedConfig = localStorage.getItem('unitsConfig');
     if (savedConfig) {
@@ -1659,26 +1846,19 @@ const App = () => {
       }
     }
 
-    // Check if admin session exists
     const adminSession = sessionStorage.getItem('isAdmin');
-    if (adminSession === 'true') {
-      setIsAdmin(true);
-    }
+    if (adminSession === 'true') setIsAdmin(true);
   }, []);
 
-  // Save configuration to localStorage
   useEffect(() => {
     localStorage.setItem('unitsConfig', JSON.stringify(unitsConfig));
   }, [unitsConfig]);
 
-  // Save theme preference
   useEffect(() => {
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-  };
+  const toggleTheme = () => setDarkMode(!darkMode);
 
   const handleAdminLogin = () => {
     setIsAdmin(true);
@@ -1697,18 +1877,15 @@ const App = () => {
     setUnitsConfig(newConfig);
   };
 
-  // Get units with current configuration
   const units = unitsConfig.units.map(unit => ({
     ...unit,
     status: unit.available ? 'Available' : 'Coming Soon'
   }));
 
-  // Calculate overall progress
   const availableUnits = units.filter(u => u.available).length;
   const totalUnits = units.length;
   const overallProgress = (availableUnits / totalUnits) * 100;
 
-  // If a unit is selected, show that unit
   if (selectedUnit) {
     const UnitComponent = selectedUnit.component;
     return (
@@ -1717,7 +1894,6 @@ const App = () => {
           ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900' 
           : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
       }`}>
-        {/* Header */}
         <div className={`backdrop-blur-lg border-b transition-colors duration-300 ${
           darkMode ? 'bg-black/30 border-white/10' : 'bg-white/70 border-gray-200'
         }`}>
@@ -1731,7 +1907,6 @@ const App = () => {
                       ? 'bg-gray-800 hover:bg-gray-700 text-white' 
                       : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                   }`}
-                  title="Back to Units"
                 >
                   <Home className="w-5 h-5" />
                 </button>
@@ -1740,9 +1915,6 @@ const App = () => {
                     <span className="text-3xl">{selectedUnit.icon}</span>
                     Unit {selectedUnit.id}: {selectedUnit.title}
                   </h1>
-                  <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {selectedUnit.description}
-                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -1762,7 +1934,6 @@ const App = () => {
                       ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400' 
                       : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                   }`}
-                  title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                 >
                   {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
                 </button>
@@ -1771,12 +1942,10 @@ const App = () => {
           </div>
         </div>
 
-        {/* Unit Content */}
         <div className="max-w-6xl mx-auto px-6 py-8">
           <UnitComponent darkMode={darkMode} />
         </div>
 
-        {/* Admin Panel */}
         {showAdminPanel && (
           <AdminPanel
             darkMode={darkMode}
@@ -1789,14 +1958,12 @@ const App = () => {
     );
   }
 
-  // Home screen - Unit selection
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       darkMode 
         ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900' 
         : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
     }`}>
-      {/* Header */}
       <div className={`backdrop-blur-lg border-b transition-colors duration-300 ${
         darkMode ? 'bg-black/30 border-white/10' : 'bg-white/70 border-gray-200'
       }`}>
@@ -1813,7 +1980,7 @@ const App = () => {
                 )}
               </h1>
               <p className={`text-base mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Interactive Learning Platform - Select a unit to begin
+                Interactive Learning Platform
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -1857,13 +2024,12 @@ const App = () => {
                     ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400' 
                     : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                 }`}
-                title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
                 {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
               </button>
               <div className="text-right">
                 <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Course Progress
+                  Progress
                 </div>
                 <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   {availableUnits}/{totalUnits}
@@ -1873,7 +2039,6 @@ const App = () => {
             </div>
           </div>
           
-          {/* Overall Progress Bar */}
           <div className={`mt-4 rounded-full h-3 overflow-hidden ${darkMode ? 'bg-gray-700/50' : 'bg-gray-300'}`}>
             <div 
               className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
@@ -1883,7 +2048,6 @@ const App = () => {
         </div>
       </div>
 
-      {/* Units Grid */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {units.map((unit) => (
@@ -1896,7 +2060,6 @@ const App = () => {
               } ${unit.available ? 'cursor-pointer' : 'opacity-75'}`}
               onClick={() => unit.available && setSelectedUnit(unit)}
             >
-              {/* Gradient Header */}
               <div className={`bg-gradient-to-r ${unit.color} p-6 text-white relative`}>
                 <div className="flex items-start justify-between">
                   <div className="text-5xl">{unit.icon}</div>
@@ -1909,13 +2072,11 @@ const App = () => {
                   </div>
                 </div>
                 
-                {/* Unit Number Badge */}
                 <div className="absolute top-4 left-4 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                   <span className="text-2xl font-bold">{unit.id}</span>
                 </div>
               </div>
 
-              {/* Content */}
               <div className="p-6">
                 <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   Unit {unit.id}
@@ -1927,7 +2088,6 @@ const App = () => {
                   {unit.description}
                 </p>
                 
-                {/* Stats */}
                 <div className="flex items-center justify-between">
                   <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     <span className="font-semibold">{unit.topics}</span> topics
@@ -1947,7 +2107,6 @@ const App = () => {
                 </div>
               </div>
 
-              {/* Locked Overlay */}
               {!unit.available && (
                 <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center">
                   <div className={`px-6 py-3 rounded-full font-semibold ${
@@ -1960,33 +2119,16 @@ const App = () => {
             </div>
           ))}
         </div>
-
-        {/* Information Footer */}
-        <div className={`mt-12 p-6 rounded-xl ${
-          darkMode 
-            ? 'bg-blue-900/20 border border-blue-700/30' 
-            : 'bg-blue-50 border border-blue-200'
-        }`}>
-          <h3 className={`text-lg font-semibold mb-2 ${darkMode ? 'text-blue-300' : 'text-blue-900'}`}>
-            📚 About This Course
-          </h3>
-          <p className={`text-sm ${darkMode ? 'text-blue-200' : 'text-blue-800'}`}>
-            This interactive platform covers the complete C Programming syllabus. Each unit contains concept explanations, 
-            interactive quizzes with logical pattern questions, and hands-on coding challenges.
-            {isAdmin && ' As an admin, you can control which units are visible to students using the Control Panel.'}
-          </p>
-        </div>
       </div>
 
-      {/* Admin Login Modal */}
       {showAdminLogin && (
         <AdminLogin
           darkMode={darkMode}
           onLogin={handleAdminLogin}
+          onCancel={() => setShowAdminLogin(false)}
         />
       )}
 
-      {/* Admin Panel */}
       {showAdminPanel && (
         <AdminPanel
           darkMode={darkMode}
