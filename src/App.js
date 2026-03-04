@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Trophy, Sun, Moon, Home, Shield, Lock, Unlock, Eye, EyeOff, LogOut } from 'lucide-react';
 import Unit2 from './Unit2';
+import Unit3 from './Unit3';
 
 // Static unit definitions (never changes) – includes the component!
 const UNIT_DEFINITIONS = [
@@ -29,7 +30,7 @@ const UNIT_DEFINITIONS = [
     topics: 6,
     color: 'from-green-500 to-teal-500',
     icon: '🔄',
-    component: null,
+    component: Unit3,
   },
   {
     id: 4,
@@ -120,7 +121,7 @@ const AdminLogin = ({ darkMode, onLogin, onCancel }) => {
           </div>
           <div className={`p-4 rounded-lg ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
             <p className={`text-sm ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
-              <strong>Password:</strong> admin123
+              <strong>Password:</strong>
             </p>
           </div>
         </form>
