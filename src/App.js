@@ -188,7 +188,7 @@ const App = () => {
   // Store only availability flags (by unit id)
   const [unitAvailability, setUnitAvailability] = useState(() => {
     // Default: only unit 2 is available
-    const defaultAvailability = {};
+    const defaultAvailability = {2: true,3: true}; // Pre-unlock unit 3 for testing
     UNIT_DEFINITIONS.forEach(u => {
       defaultAvailability[u.id] = u.id === 3;
     });
