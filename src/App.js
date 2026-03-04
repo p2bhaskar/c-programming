@@ -190,7 +190,7 @@ const App = () => {
     // Default: only unit 2 is available
     const defaultAvailability = {};
     UNIT_DEFINITIONS.forEach(u => {
-      defaultAvailability[u.id] = u.id === 2;
+      defaultAvailability[u.id] = u.id === 3;
     });
     return defaultAvailability;
   });
